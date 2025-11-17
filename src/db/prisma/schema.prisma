@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model audit_logs {
+  id         String    @id @db.Uuid
+  tenant_id  String    @db.Uuid
+  user_id    String?   @db.Uuid
+  resource   String
+  action     String
+  allowed    Boolean
+  context    Json?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  tenants    tenants   @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model permissions {
+  id               String             @id @db.Uuid
+  code             String             @unique
+  description      String?
+  role_permissions role_permissions[]
+}
+
+model plans {
+  code                   String    @id
+  name                   String
+  api_limit              Int
+  event_limit            Int
+  webhook_limit          Int
+  max_users              Int
+  overage_per_1000_minor BigInt
+  soft_limit_ratio       Decimal   @default(0.800) @db.Decimal(4, 3)
+  created_at             DateTime? @default(now()) @db.Timestamptz(6)
+  tenants                tenants[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model policies {
+  id         String    @id @db.Uuid
+  tenant_id  String    @db.Uuid
+  name       String
+  resource   String
+  action     String
+  effect     String
+  condition  Json
+  active     Boolean   @default(true)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  tenants    tenants   @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model role_permissions {
+  role_id       String      @db.Uuid
+  permission_id String      @db.Uuid
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([role_id, permission_id])
+}
+
+model roles {
+  id               String             @id @db.Uuid
+  tenant_id        String             @db.Uuid
+  code             String
+  name             String
+  built_in         Boolean            @default(false)
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  role_permissions role_permissions[]
+  tenants          tenants            @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_roles       user_roles[]
+
+  @@unique([tenant_id, code])
+}
+
+model tenants {
+  id                 String               @id @db.Uuid
+  name               String
+  plan_code          String
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  audit_logs         audit_logs[]
+  policies           policies[]
+  roles              roles[]
+  plans              plans                @relation(fields: [plan_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  users              users[]
+  webhook_deliveries webhook_deliveries[]
+  webhook_endpoints  webhook_endpoints[]
+}
+
+model user_roles {
+  user_id String @db.Uuid
+  role_id String @db.Uuid
+  roles   roles  @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, role_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model users {
+  id            String       @id @db.Uuid
+  tenant_id     String       @db.Uuid
+  email         String       @unique
+  password_hash String?
+  role          String
+  created_at    DateTime?    @default(now()) @db.Timestamptz(6)
+  user_roles    user_roles[]
+  tenants       tenants      @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model webhook_deliveries {
+  id                String            @id @db.Uuid
+  tenant_id         String            @db.Uuid
+  endpoint_id       String            @db.Uuid
+  event_type        String
+  payload           Json
+  status            String
+  attempt_count     Int               @default(0)
+  last_attempt_at   DateTime?         @db.Timestamptz(6)
+  created_at        DateTime?         @default(now()) @db.Timestamptz(6)
+  webhook_endpoints webhook_endpoints @relation(fields: [endpoint_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants           tenants           @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model webhook_endpoints {
+  id                 String               @id @db.Uuid
+  tenant_id          String               @db.Uuid
+  url                String
+  secret             String
+  active             Boolean              @default(true)
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  webhook_deliveries webhook_deliveries[]
+  tenants            tenants              @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}

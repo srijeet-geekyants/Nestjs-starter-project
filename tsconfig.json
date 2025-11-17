@@ -1,0 +1,64 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "incremental": true,
+    "skipLibCheck": true,
+    // Strict type checking for better code quality
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    // Additional strict checks
+    "maxNodeModuleJsDepth": 20,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "importsNotUsedAsValues": "remove",
+    // Path mapping for clean imports
+    "baseUrl": "./src",
+    "paths": {
+      "@common/*": ["common/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@interceptors/*": ["interceptors/*"],
+      "@config/*": ["config/*"],
+      "@logger/*": ["logger/*"],
+      "@db/*": ["db/*"],
+      "@redis/*": ["redis/*"],
+      "@otel/*": ["otel/*"],
+      "@bg/*": ["background/*"],
+      "@cron/*": ["background/cron/*"],
+      "@email-queue/*": ["background/queue/email/*"],
+      "@notification-queue/*": ["background/queue/notification/*"],
+      "@dead-letter-queue/*": ["background/queue/dead-letter/*"],
+      "@metrics/*": ["api/metrics/*"],
+      "@health/*": ["api/health/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "test/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage"
+  ]
+}
