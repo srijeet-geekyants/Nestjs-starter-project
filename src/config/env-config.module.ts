@@ -55,6 +55,12 @@ const envConfig = registerAs(
       APP_LOGS_URL: process.env['APP_LOGS_URL'] || '',
       DEV_DOCS_URL: process.env['DEV_DOCS_URL'] || '',
       SERVICES_HEALTH_URL: process.env['SERVICES_HEALTH_URL'] || '',
+      JWT_SECRET: process.env['JWT_SECRET'] || 'change-me',
+      JWT_EXPIRATION: parseInt(process.env['JWT_EXPIRATION'] || '3600', 10),
+      GOOGLE_CLIENT_ID: process.env['GOOGLE_CLIENT_ID'] || '',
+      GOOGLE_CLIENT_SECRET: process.env['GOOGLE_CLIENT_SECRET'] || '',
+      GOOGLE_CALLBACK_URL:
+        process.env['GOOGLE_CALLBACK_URL'] || 'http://localhost:3000/v1/auth/google/callback',
     }) as EnvConfig
 );
 
@@ -109,6 +115,11 @@ const validationSchema = Joi.object({
   APP_LOGS_URL: Joi.string().required(),
   DEV_DOCS_URL: Joi.string().required(),
   SERVICES_HEALTH_URL: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRATION: Joi.number().default(3600),
+  GOOGLE_CLIENT_ID: Joi.string().required(),
+  GOOGLE_CLIENT_SECRET: Joi.string().required(),
+  GOOGLE_CALLBACK_URL: Joi.string().uri().required(),
 });
 
 @Module({

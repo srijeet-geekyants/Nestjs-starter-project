@@ -140,4 +140,24 @@ export class EnvConfig {
   @IsNotEmpty()
   @IsString()
   SERVICES_HEALTH_URL!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  JWT_SECRET!: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  JWT_EXPIRATION!: number;
+
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_CLIENT_ID!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_CLIENT_SECRET!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_CALLBACK_URL!: string;
 }

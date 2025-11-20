@@ -28,6 +28,7 @@ import { TracingModule } from './api/tracing/tracing.module';
 import { DevToolsMiddleware } from '@middlewares/dev-tool.middleware';
 import { RouteNames } from '@common/route-names';
 import { CookieAuthMiddleware } from '@middlewares/cookies.middleware';
+import { AuthModule } from './api/auth/auth.module';
 
 const configService = new ConfigService<EnvConfig>();
 
@@ -107,6 +108,7 @@ const cacheModule = CacheModule.registerAsync({
     HealthModule,
     DevToolsModule,
     TracingModule,
+    AuthModule,
   ],
   providers: [
     ErrorHandlerService,

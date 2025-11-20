@@ -4,6 +4,9 @@ export enum QueueName {
   NOTIFICATION = 'notification',
   DEAD_LETTER = 'dead-letter',
   CRON = 'cron',
+  POLICY_EVALUATE = 'policy-evaluate',
+  AUDIT_INSERT = 'audit-insert',
+  WEBHOOK_DISPATCH = 'webhook-dispatch',
 }
 
 export const QUEUE_LIST = Object.values(QueueName).filter((v): v is QueueName =>
