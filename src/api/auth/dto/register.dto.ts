@@ -25,7 +25,7 @@ export class RegisterDto extends LoginDto {
   @IsString({ message: 'Name must be a string' })
   @IsNotEmpty({ message: 'Name is required' })
   @MinLength(3, { message: 'Name must be at least 3 characters long' })
-  @Matches(/^[a-zA-Z]+$/, {
+  @Matches(/^[a-zA-Z\s]+$/, {
     message: 'Name can only contain letters',
   })
   name!: string;

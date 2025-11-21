@@ -1,1 +1,42 @@
--- Seeds will go here
+-- -- Seed plans data
+-- -- Insert STARTUP plan
+-- INSERT INTO plans (
+--   code,
+--   name,
+--   api_limit,
+--   event_limit,
+--   webhook_limit,
+--   max_users,
+--   overage_per_1000_minor,
+--   soft_limit_ratio
+-- ) VALUES (
+--   'STARTUP',
+--   'Startup Plan',
+--   10000,      -- 10,000 API calls per month
+--   50000,      -- 50,000 events per month
+--   1000,       -- 1,000 webhooks per month
+--   10,         -- Max 10 users
+--   100,        -- ₹0.10 (10 paise) per 1000 events over limit
+--   0.800       -- 80% soft limit ratio
+-- ) ON CONFLICT (code) DO NOTHING;
+--
+-- -- Insert GROWTH plan
+-- INSERT INTO plans (
+--   code,
+--   name,
+--   api_limit,
+--   event_limit,
+--   webhook_limit,
+--   max_users,
+--   overage_per_1000_minor,
+--   soft_limit_ratio
+-- ) VALUES (
+--   'GROWTH',
+--   'Growth Plan',
+--   100000,     -- 100,000 API calls per month
+--   500000,     -- 500,000 events per month
+--   10000,      -- 10,000 webhooks per month
+--   50,         -- Max 50 users
+--   80,         -- ₹0.08 (8 paise) per 1000 events over limit
+--   0.850       -- 85% soft limit ratio
+-- ) ON CONFLICT (code) DO NOTHING;

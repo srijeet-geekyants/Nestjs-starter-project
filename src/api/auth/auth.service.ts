@@ -40,7 +40,7 @@ export class AuthService {
     }
 
     const user = await this.userRepository.create({
-      id: `U-${uuidv4()}`,
+      id: uuidv4(),
       email: registerDto.email,
       password_hash: await this.hashingService.hash(registerDto.password),
       role: registerDto.invitationId ? 'OWNER' : 'USER',
@@ -49,7 +49,7 @@ export class AuthService {
       },
     });
 
-    const userDto: UserDto = {
+    const userDto: UserDto = <UserDto>{
       id: user.id,
       tenantId: tenantId,
       email: user.email,
@@ -74,12 +74,11 @@ export class AuthService {
   }
 
   private async createNewTenant(registerDto: RegisterDto) {
-    const tenantId = `T-${uuidv4()}`;
     const tenant = await this.tenantRepository.create({
-      id: tenantId,
+      id: uuidv4(),
       name: registerDto.name,
       plans: {
-        connect: { code: 'STARTUP' }, // Connect to existing plan by code
+        connect: { code: 'STARTUP' },
       },
     });
     return tenant;
@@ -102,7 +101,7 @@ export class AuthService {
       throw new UnauthorizedException('Wrong Password');
     }
 
-    const userDto: UserDto = {
+    const userDto: UserDto = <UserDto>{
       id: user.id,
       tenantId: user.tenant_id, // X-Tenant-id
       email: user.email,

@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { UserRepository } from './repositories/user.repository';
 import { TenantRepository } from './repositories/tenant.repository';
 import { BcryptService } from '@common/hashing/bcrypt.service';
+import { HashingService } from '@common/hashing/hashing.service';
 
 @Module({
   providers: [
@@ -11,7 +12,7 @@ import { BcryptService } from '@common/hashing/bcrypt.service';
     UserRepository,
     TenantRepository,
     {
-      provide: 'HashingService',
+      provide: HashingService,
       useClass: BcryptService,
     },
   ],
