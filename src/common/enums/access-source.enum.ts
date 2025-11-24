@@ -1,0 +1,5 @@
+export enum AccessSource {
+  ROLE_AND_POLICY = 'ROLE+POLICY',
+  ROLE_ONLY = 'ROLE_ONLY',
+  DENY_NO_PERMISSION = 'DENY_NO_PERMISSION',
+}

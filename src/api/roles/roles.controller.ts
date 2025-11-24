@@ -14,6 +14,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { RolesDto } from './dto/roles.dto';
 import { RolesService } from './roles.service';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { AssignPermissionDto } from './dto/assign-permission.dto';
 
 @Controller('roles')
 @ApiTags('Roles')
@@ -81,5 +82,48 @@ export class RolesController {
     @Body() updateRoleDto: UpdateRoleDto
   ): Promise<RolesDto> {
     return this.rolesService.updateRole(tenantId, id, updateRoleDto);
+  }
+
+  @Post(':id/permissions')
+  @HttpCode(HttpStatus.OK)
+  @ApiHeader({
+    name: 'X-Tenant-ID',
+    description: 'Tenant ID',
+    required: true,
+  })
+  @ApiOperation({ summary: 'Update Role Permission' })
+  @ApiResponse({ status: 200, description: 'Permission assigned successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async assignPermission(
+    @Param('id') id: string,
+    @Headers('x-tenant-id') tenantId: string,
+    @Body() assignPermissionDto: AssignPermissionDto
+  ): Promise<RolesDto> {
+    return this.rolesService.assignPermissionToRole(tenantId, id, assignPermissionDto);
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiHeader({
+    name: 'X-Tenant-ID',
+    description: 'Tenant ID',
+    required: true,
+  })
+  @ApiOperation({ summary: 'Get Role by ID' })
+  @ApiResponse({ status: 200, description: 'Role retrieved successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async getRole(
+    @Param('id') roleId: string,
+    @Headers('x-tenant-id') tenantId: string
+  ): Promise<RolesDto> {
+    return this.rolesService.getRoleByIdAndTenantId(tenantId, roleId);
   }
 }

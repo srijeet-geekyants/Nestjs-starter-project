@@ -3,7 +3,7 @@ process.env.TZ = 'UTC';
 import { HttpExceptionFilter } from '@common/filters/http-exception.filter';
 import { RouteNames } from '@common/route-names';
 import { LoggerService } from '@logger/logger.service';
-import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
@@ -79,6 +79,23 @@ async function bootstrap() {
       transform: true, // Transform plain input objects to class instances
       transformOptions: {
         enableImplicitConversion: true,
+      },
+      exceptionFactory: errors => {
+        const messages = errors.map(error => {
+          if (error.constraints) {
+            return Object.values(error.constraints).join(', ');
+          }
+          // Handle non-whitelisted properties
+          if (error.property) {
+            return `Property '${error.property}' is not allowed`;
+          }
+          return 'Validation failed';
+        });
+        return new BadRequestException({
+          statusCode: 400,
+          message: messages,
+          error: 'Bad Request',
+        });
       },
     })
   );

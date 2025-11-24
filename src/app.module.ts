@@ -31,6 +31,9 @@ import { CookieAuthMiddleware } from '@middlewares/cookies.middleware';
 import { AuthModule } from './api/auth/auth.module';
 import { PermissionsModule } from './api/permissions/permissions.module';
 import { RolesModule } from './api/roles/roles.module';
+import { UsersModule } from './api/users/users.module';
+import { PoliciesModule } from './api/policies/policies.module';
+import { AccessModule } from './api/access/access.module';
 
 const configService = new ConfigService<EnvConfig>();
 
@@ -113,6 +116,9 @@ const cacheModule = CacheModule.registerAsync({
     AuthModule,
     PermissionsModule,
     RolesModule,
+    UsersModule,
+    PoliciesModule,
+    AccessModule,
   ],
   providers: [
     ErrorHandlerService,
@@ -130,6 +136,7 @@ const cacheModule = CacheModule.registerAsync({
       useClass: TransformInterceptor,
     },
   ],
+  controllers: [],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
