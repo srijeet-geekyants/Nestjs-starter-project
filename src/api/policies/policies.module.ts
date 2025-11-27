@@ -5,6 +5,8 @@ import { PoliciesRepository } from './repository/policies.repository';
 import { BullModule } from '@nestjs/bullmq';
 import { QueueName } from '@bg/constants/job.constant';
 import { UsersModule } from '../users/users.module';
+import { MetricsModule } from '@metrics/metrics.module';
+import { LoggerModule } from '@logger/logger.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { UsersModule } from '../users/users.module';
       name: QueueName.WEBHOOK_DISPATCH,
     }),
     UsersModule,
+    MetricsModule,
+    LoggerModule,
   ],
   controllers: [PoliciesController],
   providers: [PoliciesService, PoliciesRepository],

@@ -10,7 +10,7 @@ export enum QueueName {
 }
 
 export const QUEUE_LIST = Object.values(QueueName).filter((v): v is QueueName =>
-  Object.values(QueueName).includes(v as QueueName),
+  Object.values(QueueName).includes(v as QueueName)
 );
 
 export const DEFAULT_JOB_OPTIONS = {
@@ -41,6 +41,9 @@ export enum JobName {
   NOTIFICATION_TO_TOPIC = 'notification-to-topic',
   NOTIFICATION_SEND = 'notification-send',
   DLQ_FAILED_JOB = 'dlq_failed_job',
+  POLICY_EVALUATE = 'policy-evaluate',
+  AUDIT_INSERT = 'audit-insert',
+  WEBHOOK_DISPATCH = 'webhook-dispatch',
 }
 
 export enum CronJobName {

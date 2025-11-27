@@ -75,7 +75,13 @@ export class RolesRepository {
     });
   }
 
-  async findPermissionByCodes(codes: string[]): Promise<Array<{ id: string; code: string }>> {
+  async findPermissionByCodes(codes: string[]): Promise<
+    Array<{
+      description: string | null;
+      id: string;
+      code: string;
+    }>
+  > {
     return this.dbService.permissions.findMany({
       where: {
         code: { in: codes },
@@ -83,6 +89,7 @@ export class RolesRepository {
       select: {
         id: true,
         code: true,
+        description: true,
       },
     });
   }

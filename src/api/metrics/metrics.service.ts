@@ -15,6 +15,12 @@ export class MetricsService {
   private readonly totalMobileRequests: Counter<string>;
   private readonly totalWebRequests: Counter<string>;
 
+  // Custom business metrics
+  private readonly accessDecisionsTotal: Counter<string>;
+  private readonly policyEvaluationsTotal: Counter<string>;
+  private readonly auditLogsWrittenTotal: Counter<string>;
+  private readonly webhookFailuresTotal: Counter<string>;
+
   constructor() {
     this.totalHttpRequests = new Counter({
       name: 'total_http_requests',
@@ -73,6 +79,31 @@ export class MetricsService {
       help: 'Total requests grouped by Web',
       labelNames: ['web_request'],
     });
+
+    // Custom business metrics
+    this.accessDecisionsTotal = new Counter({
+      name: 'access_decisions_total',
+      help: 'Total number of access control decisions made',
+      labelNames: ['tenantId', 'resource', 'action', 'allowed'],
+    });
+
+    this.policyEvaluationsTotal = new Counter({
+      name: 'policy_evaluations_total',
+      help: 'Total number of policy evaluations performed',
+      labelNames: ['tenantId', 'resource', 'action'],
+    });
+
+    this.auditLogsWrittenTotal = new Counter({
+      name: 'audit_logs_written_total',
+      help: 'Total number of audit logs written to database',
+      labelNames: ['tenantId'],
+    });
+
+    this.webhookFailuresTotal = new Counter({
+      name: 'webhook_failures_total',
+      help: 'Total number of webhook delivery failures',
+      labelNames: ['tenantId', 'eventType'],
+    });
   }
 
   incrementHttpRequests() {
@@ -126,5 +157,22 @@ export class MetricsService {
   incrementMobileWebReqCounter(isMobile: boolean) {
     if (isMobile) this.totalMobileRequests.inc();
     else this.totalWebRequests.inc();
+  }
+
+  // Custom business metrics methods
+  incrementAccessDecision(tenantId: string, resource: string, action: string, allowed: boolean) {
+    this.accessDecisionsTotal.labels(tenantId, resource, action, allowed.toString()).inc();
+  }
+
+  incrementPolicyEvaluation(tenantId: string, resource: string, action: string) {
+    this.policyEvaluationsTotal.labels(tenantId, resource, action).inc();
+  }
+
+  incrementAuditLogWritten(tenantId: string) {
+    this.auditLogsWrittenTotal.labels(tenantId).inc();
+  }
+
+  incrementWebhookFailure(tenantId: string, eventType: string) {
+    this.webhookFailuresTotal.labels(tenantId, eventType).inc();
   }
 }

@@ -5,6 +5,9 @@ import { DeadLetterQueueModule } from '@dead-letter-queue/dead-letter-queue.modu
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { QUEUE_LIST } from '@bg/constants/job.constant';
+import { PolicyEvaluateQueueModule } from './queue/policy-evaluate/policy-evaluate-queue.module';
+import { AuditInsertQueueModule } from './queue/audit-insert/audit-insert-queue.module';
+import { WebhookDispatchQueueModule } from './queue/webhook-dispatch/webhook-dispatch-queue.module';
 
 @Module({
   imports: [
@@ -13,6 +16,9 @@ import { QUEUE_LIST } from '@bg/constants/job.constant';
     NotificationQueueModule,
     DeadLetterQueueModule,
     CronModule,
+    PolicyEvaluateQueueModule,
+    AuditInsertQueueModule,
+    WebhookDispatchQueueModule,
   ],
 })
 export class BackgroundModule {}

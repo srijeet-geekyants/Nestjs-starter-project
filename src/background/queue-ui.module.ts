@@ -9,6 +9,9 @@ import { DeadLetterQueueUIModule } from '@dead-letter-queue/deadletter-queue-ui.
 import { CronUIModule } from '@cron/cron-ui.module';
 import { NotificationQueueUIModule } from '@notification-queue/notification-queue-ui.module';
 import { EmailQueueUIModule } from '@email-queue/email-queue-ui.module';
+import { PolicyEvaluateQueueUIModule } from './queue/policy-evaluate/policy-evaluate-queue-ui.module';
+import { AuditInsertQueueUIModule } from './queue/audit-insert/audit-insert-queue-ui.module';
+import { WebhookDispatchQueueUIModule } from './queue/webhook-dispatch/webhook-dispatch-queue-ui.module';
 
 @Module({
   imports: [
@@ -26,6 +29,9 @@ import { EmailQueueUIModule } from '@email-queue/email-queue-ui.module';
     CronUIModule,
     NotificationQueueUIModule,
     EmailQueueUIModule,
+    PolicyEvaluateQueueUIModule,
+    AuditInsertQueueUIModule,
+    WebhookDispatchQueueUIModule,
   ],
   providers: [AddingJobsToQueueManager],
   exports: [AddingJobsToQueueManager],

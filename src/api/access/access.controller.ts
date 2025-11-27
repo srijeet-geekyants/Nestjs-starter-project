@@ -14,6 +14,9 @@ import { EvaluatePolicyDto } from '../policies/dto/evaluate-policy.dto';
 import { EvaluatePolicyResponseDto } from '../policies/dto/evaluate-policy-response.dto';
 import { CheckAccessDto } from './dto/check-access.dto';
 import { CheckAccessResponseDto } from './dto/check-access-response.dto';
+import { PreviewMode } from '@common/decorators/preview-mode.decorator';
+import { isPreviewMode } from '@common/helpers/preview-mode.helper';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('access')
 @ApiTags('Access')
@@ -42,6 +45,7 @@ export class AccessController {
 
   @Post('check')
   @HttpCode(HttpStatus.OK)
+  @PreviewMode()
   @ApiHeader({
     name: 'X-Tenant-ID',
     description: 'Tenant ID',
@@ -52,7 +56,15 @@ export class AccessController {
     description: 'Bearer token for authentication',
     required: true,
   })
-  @ApiOperation({ summary: 'Check access for authenticated user (authorizes real actions)' })
+  @ApiHeader({
+    name: 'X-Preview-Mode',
+    description: 'Set to "true" to check access without creating audit logs (optional)',
+    required: false,
+  })
+  @ApiOperation({
+    summary: 'Check access for authenticated user (authorizes real actions)',
+    description: 'Add X-Preview-Mode: true header to check access without creating audit logs'
+  })
   @ApiResponse({ status: 200, description: 'Access check completed successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -70,7 +82,16 @@ export class AccessController {
       throw new UnauthorizedException('User not authenticated');
     }
 
-    return this.accessService.checkAccess(tenantId, userId, checkAccessDto);
+    // Extract or generate requestId
+    const requestId = req.headers['x-request-id'] || req.id || uuidv4();
+
+    return this.accessService.checkAccess(
+      tenantId,
+      userId,
+      checkAccessDto,
+      isPreviewMode(req),
+      requestId
+    );
   }
 
   private extractUserIdFromToken(req: any): string | null {

@@ -5,6 +5,7 @@ import { DBModule } from '@db/db.module';
 import { HealthModule } from '@health/health.module';
 import { HttpLoggingInterceptor } from '@interceptors/logging.interceptor';
 import { TransformInterceptor } from '@interceptors/transform.interceptor';
+import { PreviewModeInterceptor } from '@common/interceptors/preview-mode.interceptor';
 import { LoggerModule } from '@logger/logger.module';
 import { MetricsModule } from '@metrics/metrics.module';
 import { MetricsMiddleware } from '@middlewares/metrics.middleware';
@@ -34,6 +35,7 @@ import { RolesModule } from './api/roles/roles.module';
 import { UsersModule } from './api/users/users.module';
 import { PoliciesModule } from './api/policies/policies.module';
 import { AccessModule } from './api/access/access.module';
+import { WebhooksModule } from './api/webhooks/webhooks.module';
 
 const configService = new ConfigService<EnvConfig>();
 
@@ -119,13 +121,18 @@ const cacheModule = CacheModule.registerAsync({
     UsersModule,
     PoliciesModule,
     AccessModule,
+    WebhooksModule,
   ],
   providers: [
     ErrorHandlerService,
     DevToolsMiddleware,
     {
       provide: APP_INTERCEPTOR,
-      useClass: HttpLoggingInterceptor,
+      useClass: PreviewModeInterceptor, // Run first to set preview mode flag
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpLoggingInterceptor, // Can now read preview mode flag
     },
     {
       provide: APP_GUARD,

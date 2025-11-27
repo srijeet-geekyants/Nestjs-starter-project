@@ -26,3 +26,24 @@ groups:
       # === Total Web Requests (Optional if needed separately) ===
       - record: nestjs:web_requests_total
         expr: sum(total_web_requests)
+
+      # === Business Metrics ===
+      # Access Decisions Rate
+      - record: nestjs:access_decisions_rate_5m
+        expr: sum(rate(access_decisions_total[5m]))
+
+      # Access Denial Rate Percentage
+      - record: nestjs:access_denial_rate_percent
+        expr: (sum(rate(access_decisions_total{allowed="false"}[5m])) / sum(rate(access_decisions_total[5m]))) * 100
+
+      # Policy Evaluations Rate
+      - record: nestjs:policy_evaluations_rate_5m
+        expr: sum(rate(policy_evaluations_total[5m]))
+
+      # Audit Logs Written Rate
+      - record: nestjs:audit_logs_written_rate_5m
+        expr: sum(rate(audit_logs_written_total[5m]))
+
+      # Webhook Failures Rate
+      - record: nestjs:webhook_failures_rate_5m
+        expr: sum(rate(webhook_failures_total[5m]))

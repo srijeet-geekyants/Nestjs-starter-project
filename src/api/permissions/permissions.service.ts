@@ -8,12 +8,22 @@ import { CreatePermissionDto } from './dto/create-permission.dto';
 export class PermissionsService {
   constructor(private readonly permissionRepository: PermissionRepository) {}
 
-  async create(createPermissionDto: CreatePermissionDto): Promise<PermissionDto> {
+  async create(createPermissionDto: CreatePermissionDto, isPreviewMode: boolean = false): Promise<PermissionDto> {
     const codeExists = await this.permissionRepository.existsByCode(createPermissionDto.code);
     if (codeExists) {
       throw new ConflictException('Permission code already exists');
     }
 
+    // In preview mode, validate but don't create
+    if (isPreviewMode) {
+      return {
+        id: 'preview-' + uuidv4(),
+        code: createPermissionDto.code,
+        description: createPermissionDto.description || '',
+      };
+    }
+
+    // Real mode: create the permission
     const permission = await this.permissionRepository.create({
       id: uuidv4(),
       code: createPermissionDto.code,

@@ -1,9 +1,11 @@
-import { Controller, HttpCode, Headers, HttpStatus, Get, Param, Post, Body } from '@nestjs/common';
+import { Controller, HttpCode, Headers, HttpStatus, Get, Param, Post, Body, Request } from '@nestjs/common';
 import { ApiHeader, ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { UsersDto } from './dto/users.dto';
 import { UsersService } from './users.service';
 import { AssignUserRoleDto } from './dto/assign-user-role.dto';
 import { UserRolesDto } from './dto/user-roles.dto';
+import { PreviewMode } from '@common/decorators/preview-mode.decorator';
+import { isPreviewMode } from '@common/helpers/preview-mode.helper';
 
 @Controller('users')
 @ApiTags('Users')
@@ -51,12 +53,21 @@ export class UsersController {
 
   @Post(':id/assign-role')
   @HttpCode(HttpStatus.OK)
+  @PreviewMode()
   @ApiHeader({
     name: 'X-Tenant-ID',
     description: 'Tenant ID',
     required: true,
   })
-  @ApiOperation({ summary: 'Assign User Roles By User ID' })
+  @ApiHeader({
+    name: 'X-Preview-Mode',
+    description: 'Set to "true" to preview without assigning (optional)',
+    required: false,
+  })
+  @ApiOperation({
+    summary: 'Assign User Roles By User ID',
+    description: 'Add X-Preview-Mode: true header to validate without assigning'
+  })
   @ApiResponse({ status: 200, description: 'Assign User Roles Assigned to User Successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -66,9 +77,10 @@ export class UsersController {
   async assignRole(
     @Param('id') userId: string,
     @Headers('x-tenant-id') tenantId: string,
-    @Body() assignUserRoleDto: AssignUserRoleDto
+    @Body() assignUserRoleDto: AssignUserRoleDto,
+    @Request() req: any
   ): Promise<UserRolesDto> {
-    return this.usersService.assignRole(userId, tenantId, assignUserRoleDto);
+    return this.usersService.assignRole(userId, tenantId, assignUserRoleDto, isPreviewMode(req));
   }
 
   @Get(':id/roles')

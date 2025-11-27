@@ -26,6 +26,9 @@ export class MetricsController {
 }
 
 /**
+ * Prometheus Query Examples:
+ *
+ * === API Metrics ===
  * @SLOWEST_API topk(5, rate(api_request_duration_seconds_sum[5m]) / rate(api_request_duration_seconds_count[5m]))
  * @MOST_COMMON_BROWSERS topk(5, api_requests_by_user_agent)
  * @TOP_REFERERS topk(5, api_requests_by_referer)
@@ -36,4 +39,13 @@ export class MetricsController {
  * @ACTIVE_USERS_GAUGE (sum(rate(api_requests_total[1m])) by (instance)) * 60
  * @CONCURRENT_REQUESTS_GAUGE sum(rate(concurrent_http_requests[1m])) by (instance)
  * @MOBILE_VS_WEB_REQUESTS (sum(rate(api_requests_by_user_agent{browser_family="Mobile"}[1m])) by (instance)) / (sum(rate(api_requests_by_user_agent{browser_family="Web"}[1m])) by (instance))
+ *
+ * === Business Metrics ===
+ * @ACCESS_DECISIONS_RATE sum(rate(access_decisions_total[5m]))
+ * @ACCESS_DENIAL_RATE sum(rate(access_decisions_total{allowed="false"}[5m])) / sum(rate(access_decisions_total[5m])) * 100
+ * @POLICY_EVALUATIONS_RATE sum(rate(policy_evaluations_total[5m]))
+ * @AUDIT_LOGS_RATE sum(rate(audit_logs_written_total[5m]))
+ * @WEBHOOK_FAILURES_RATE sum(rate(webhook_failures_total[5m]))
+ * @TOP_RESOURCES_BY_ACCESS topk(10, sum by (resource) (rate(access_decisions_total[5m])))
+ * @WEBHOOK_FAILURES_BY_EVENT sum by (eventType) (rate(webhook_failures_total[5m]))
  */

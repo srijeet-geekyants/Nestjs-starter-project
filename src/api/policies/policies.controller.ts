@@ -9,12 +9,15 @@ import {
   Patch,
   Param,
   Query,
+  Request,
 } from '@nestjs/common';
 import { ApiHeader, ApiResponse, ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { CreatePolicyDto } from './dto/create-policy.dto';
 import { PolicyDto } from './dto/policy.dto';
 import { PoliciesService } from './policies.service';
 import { UpdatePolicyDto } from './dto/update-policy.dto';
+import { PreviewMode } from '@common/decorators/preview-mode.decorator';
+import { isPreviewMode } from '@common/helpers/preview-mode.helper';
 
 @Controller('policies')
 @ApiTags('Policies')
@@ -23,12 +26,21 @@ export class PoliciesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @PreviewMode()
   @ApiHeader({
     name: 'X-Tenant-ID',
     description: 'Tenant ID',
     required: true,
   })
-  @ApiOperation({ summary: 'Create a new policy (OWNER/ADMIN only)' })
+  @ApiHeader({
+    name: 'X-Preview-Mode',
+    description: 'Set to "true" to preview without creating (optional)',
+    required: false,
+  })
+  @ApiOperation({
+    summary: 'Create a new policy (OWNER/ADMIN only)',
+    description: 'Add X-Preview-Mode: true header to validate without creating'
+  })
   @ApiResponse({ status: 201, description: 'Policy created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -37,9 +49,10 @@ export class PoliciesController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async createPolicy(
     @Body() createPolicyDto: CreatePolicyDto,
-    @Headers('x-tenant-id') tenantId: string
+    @Headers('x-tenant-id') tenantId: string,
+    @Request() req: any
   ): Promise<PolicyDto> {
-    return this.policiesService.createPolicy(createPolicyDto, tenantId);
+    return this.policiesService.createPolicy(createPolicyDto, tenantId, isPreviewMode(req));
   }
 
   @Get()
@@ -72,12 +85,21 @@ export class PoliciesController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
+  @PreviewMode()
   @ApiHeader({
     name: 'X-Tenant-ID',
     description: 'Tenant ID',
     required: true,
   })
-  @ApiOperation({ summary: 'Update policy (OWNER/ADMIN only)' })
+  @ApiHeader({
+    name: 'X-Preview-Mode',
+    description: 'Set to "true" to preview without updating (optional)',
+    required: false,
+  })
+  @ApiOperation({
+    summary: 'Update policy (OWNER/ADMIN only)',
+    description: 'Add X-Preview-Mode: true header to validate without updating'
+  })
   @ApiResponse({ status: 200, description: 'Policy updated successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -87,8 +109,9 @@ export class PoliciesController {
   async updatePolicy(
     @Param('id') id: string,
     @Headers('x-tenant-id') tenantId: string,
-    @Body() updatePolicyDto: UpdatePolicyDto
+    @Body() updatePolicyDto: UpdatePolicyDto,
+    @Request() req: any
   ): Promise<PolicyDto> {
-    return this.policiesService.updatePolicy(tenantId, id, updatePolicyDto);
+    return this.policiesService.updatePolicy(tenantId, id, updatePolicyDto, isPreviewMode(req));
   }
 }

@@ -59,3 +59,27 @@ export interface IDLQFailedJobData {
   stacktrace?: string[];
   timestamp: number;
 }
+
+export interface IPolicyEvaluateJob {
+  tenantId: string;
+  userId: string;
+  resource: string;
+  action: string;
+  context: any;
+  requestId: string;
+}
+export interface IAuditInsertJob {
+  tenantId: string;
+  userId?: string;
+  resource: string;
+  action: string;
+  allowed: boolean;
+  context: any;
+}
+
+export interface IWebhookDispatchJob {
+  tenantId: string;
+  endpointId: string;
+  eventType: string;
+  payload: Record<string, any>;
+}
