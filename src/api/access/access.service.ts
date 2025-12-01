@@ -42,8 +42,8 @@ export class AccessService {
       attributes: {
         'tenant.id': tenantId,
         'user.id': userId,
-        'resource': checkAccessDto.resource,
-        'action': checkAccessDto.action,
+        resource: checkAccessDto.resource,
+        action: checkAccessDto.action,
         'request.id': reqId,
         'preview.mode': isPreviewMode.toString(),
       },
@@ -58,10 +58,7 @@ export class AccessService {
         context: checkAccessDto.context,
       };
 
-      const evaluationResult = await this.policiesService.evaluateAccess(
-        tenantId,
-        evaluateDto
-      );
+      const evaluationResult = await this.policiesService.evaluateAccess(tenantId, evaluateDto);
 
       // Increment access decision metric (for both preview and real mode)
       this.metricsService.incrementAccessDecision(
@@ -72,16 +69,15 @@ export class AccessService {
       );
 
       // Structured logging for access check
-      this.logger.log({
+      const logMessage = JSON.stringify({
         tenantId,
         userId,
         resource: checkAccessDto.resource,
         action: checkAccessDto.action,
         allowed: evaluationResult.allowed,
         requestId: reqId,
-        message: 'Access check completed',
-        context: 'AccessService',
       });
+      this.logger.log(logMessage, 'AccessService');
 
       // Enqueue audit log if:
       // 1. log is not explicitly false

@@ -12,13 +12,15 @@ import { TenantRepository } from './repositories/tenant.repository';
 import { UserDto } from './dto/user.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly hashingService: HashingService,
-    private readonly tenantRepository: TenantRepository
+    private readonly tenantRepository: TenantRepository,
+    private readonly jwtService: JwtService
   ) {}
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     const emailExists = await this.userRepository.existsByEmail(registerDto.email);
@@ -56,7 +58,7 @@ export class AuthService {
       role: user.role,
       createdAt: user.created_at || new Date(),
     };
-    const accessToken = 'temp-jwt-token-placeholder';
+    const accessToken = this.buildAccessToken(userDto);
     const response: AuthResponseDto = {
       accessToken,
       user: userDto,
@@ -108,11 +110,20 @@ export class AuthService {
       role: user.role,
       createdAt: user.created_at || new Date(),
     };
-    const accessToken = 'temp-jwt-token-placeholder';
+    const accessToken = this.buildAccessToken(userDto);
     const response: AuthResponseDto = {
       accessToken,
       user: userDto,
     };
     return response;
+  }
+
+  private buildAccessToken(user: UserDto): string {
+    return this.jwtService.sign({
+      sub: user.id,
+      tenantId: user.tenantId,
+      email: user.email,
+      role: user.role,
+    });
   }
 }

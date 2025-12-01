@@ -3,7 +3,6 @@ import {
   Controller,
   Post,
   HttpCode,
-  Headers,
   HttpStatus,
   Get,
   Patch,
@@ -18,28 +17,29 @@ import { PoliciesService } from './policies.service';
 import { UpdatePolicyDto } from './dto/update-policy.dto';
 import { PreviewMode } from '@common/decorators/preview-mode.decorator';
 import { isPreviewMode } from '@common/helpers/preview-mode.helper';
+import { TenantId } from '../../common/decorators/tenant-id.decorator';
 
 @Controller('policies')
 @ApiTags('Policies')
+@PreviewMode()
+@ApiHeader({
+  name: 'X-Tenant-ID',
+  description: 'Tenant ID',
+  required: true,
+})
+@ApiHeader({
+  name: 'X-Preview-Mode',
+  description: 'Set to "true" to preview without creating (optional)',
+  required: false,
+})
 export class PoliciesController {
   constructor(private readonly policiesService: PoliciesService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @PreviewMode()
-  @ApiHeader({
-    name: 'X-Tenant-ID',
-    description: 'Tenant ID',
-    required: true,
-  })
-  @ApiHeader({
-    name: 'X-Preview-Mode',
-    description: 'Set to "true" to preview without creating (optional)',
-    required: false,
-  })
   @ApiOperation({
     summary: 'Create a new policy (OWNER/ADMIN only)',
-    description: 'Add X-Preview-Mode: true header to validate without creating'
+    description: 'Add X-Preview-Mode: true header to validate without creating',
   })
   @ApiResponse({ status: 201, description: 'Policy created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -49,7 +49,7 @@ export class PoliciesController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async createPolicy(
     @Body() createPolicyDto: CreatePolicyDto,
-    @Headers('x-tenant-id') tenantId: string,
+    @TenantId() tenantId: string,
     @Request() req: any
   ): Promise<PolicyDto> {
     return this.policiesService.createPolicy(createPolicyDto, tenantId, isPreviewMode(req));
@@ -57,11 +57,6 @@ export class PoliciesController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiHeader({
-    name: 'X-Tenant-ID',
-    description: 'Tenant ID',
-    required: true,
-  })
   @ApiQuery({
     name: 'active',
     required: false,
@@ -76,7 +71,7 @@ export class PoliciesController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async getPolicies(
-    @Headers('x-tenant-id') tenantId: string,
+    @TenantId() tenantId: string,
     @Query('active') active?: string
   ): Promise<PolicyDto[]> {
     const activeFilter = active !== undefined ? active === 'true' : undefined;
@@ -85,20 +80,9 @@ export class PoliciesController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  @PreviewMode()
-  @ApiHeader({
-    name: 'X-Tenant-ID',
-    description: 'Tenant ID',
-    required: true,
-  })
-  @ApiHeader({
-    name: 'X-Preview-Mode',
-    description: 'Set to "true" to preview without updating (optional)',
-    required: false,
-  })
   @ApiOperation({
     summary: 'Update policy (OWNER/ADMIN only)',
-    description: 'Add X-Preview-Mode: true header to validate without updating'
+    description: 'Add X-Preview-Mode: true header to validate without updating',
   })
   @ApiResponse({ status: 200, description: 'Policy updated successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -108,7 +92,7 @@ export class PoliciesController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async updatePolicy(
     @Param('id') id: string,
-    @Headers('x-tenant-id') tenantId: string,
+    @TenantId() tenantId: string,
     @Body() updatePolicyDto: UpdatePolicyDto,
     @Request() req: any
   ): Promise<PolicyDto> {

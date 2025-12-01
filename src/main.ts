@@ -60,7 +60,17 @@ async function bootstrap() {
       .setTitle('Project/App Name APIs')
       .setDescription('API documentation for the backend services of Project/App Name')
       .setVersion('1.0')
-      // .addBearerAuth()
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'Authorization',
+          description: 'Enter JWT token',
+          in: 'header',
+        },
+        'bearer' // This name is used as the identifier to reference this security scheme
+      )
       .build();
     const document = SwaggerModule.createDocument(app, config);
     // ❌ remove unwanted route manually from swagger document

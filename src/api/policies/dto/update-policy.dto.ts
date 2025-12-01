@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsBoolean, IsObject } from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsObject, IsEnum } from 'class-validator';
 
 export class UpdatePolicyDto {
   @ApiProperty({
@@ -24,6 +24,16 @@ export class UpdatePolicyDto {
   @IsOptional()
   @IsObject({ message: 'Condition must be an object' })
   condition?: any;
+
+  @ApiProperty({
+    description: 'Effect (ALLOW or DENY)',
+    example: 'ALLOW',
+    enum: ['ALLOW', 'DENY'],
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(['ALLOW', 'DENY'], { message: 'Effect must be either ALLOW or DENY' })
+  effect?: 'ALLOW' | 'DENY';
 
   @ApiProperty({
     description: 'Whether the policy is active',

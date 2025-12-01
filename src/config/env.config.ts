@@ -160,4 +160,8 @@ export class EnvConfig {
   @IsNotEmpty()
   @IsString()
   GOOGLE_CALLBACK_URL!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_TTL!: string;
 }

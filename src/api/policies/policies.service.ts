@@ -28,7 +28,11 @@ export class PoliciesService {
     private readonly logger: LoggerService
   ) {}
 
-  async createPolicy(createPolicyDto: CreatePolicyDto, tenantId: string, isPreviewMode: boolean = false): Promise<PolicyDto> {
+  async createPolicy(
+    createPolicyDto: CreatePolicyDto,
+    tenantId: string,
+    isPreviewMode: boolean = false
+  ): Promise<PolicyDto> {
     // In preview mode, validate but don't create
     if (isPreviewMode) {
       // Validate condition structure
@@ -119,9 +123,14 @@ export class PoliciesService {
         name: updatePolicyDto.name !== undefined ? updatePolicyDto.name : existingPolicy.name,
         resource: existingPolicy.resource,
         action: existingPolicy.action,
-        effect: existingPolicy.effect,
-        condition: updatePolicyDto.condition !== undefined ? updatePolicyDto.condition : existingPolicy.condition as any,
-        active: updatePolicyDto.active !== undefined ? updatePolicyDto.active : existingPolicy.active,
+        effect:
+          updatePolicyDto.effect !== undefined ? updatePolicyDto.effect : existingPolicy.effect,
+        condition:
+          updatePolicyDto.condition !== undefined
+            ? updatePolicyDto.condition
+            : (existingPolicy.condition as any),
+        active:
+          updatePolicyDto.active !== undefined ? updatePolicyDto.active : existingPolicy.active,
         createdAt: existingPolicy.created_at || new Date(),
       };
     }
@@ -133,6 +142,9 @@ export class PoliciesService {
     }
     if (updatePolicyDto.condition !== undefined) {
       updateData.condition = updatePolicyDto.condition;
+    }
+    if (updatePolicyDto.effect !== undefined) {
+      updateData.effect = updatePolicyDto.effect;
     }
     if (updatePolicyDto.active !== undefined) {
       updateData.active = updatePolicyDto.active;
@@ -167,8 +179,8 @@ export class PoliciesService {
       attributes: {
         'tenant.id': tenantId,
         'user.id': evaluatePolicyDto.userId,
-        'resource': evaluatePolicyDto.resource,
-        'action': evaluatePolicyDto.action,
+        resource: evaluatePolicyDto.resource,
+        action: evaluatePolicyDto.action,
       },
     });
 
@@ -278,20 +290,22 @@ export class PoliciesService {
       );
 
       // Structured logging for policy evaluation
-      this.logger.log({
-        tenantId,
-        resource: evaluatePolicyDto.resource,
-        action: evaluatePolicyDto.action,
-        userId: evaluatePolicyDto.userId,
-        matchedPolicies: matchedPolicies.map(p => ({
-          id: p.id,
-          effect: p.effect,
-        })),
-        finalResult: allowed,
-        source: source,
-        message: 'Policy evaluation completed',
-        context: 'PoliciesService',
-      });
+      this.logger.log(
+        JSON.stringify({
+          tenantId,
+          resource: evaluatePolicyDto.resource,
+          action: evaluatePolicyDto.action,
+          userId: evaluatePolicyDto.userId,
+          matchedPolicies: matchedPolicies.map(p => ({
+            id: p.id,
+            effect: p.effect,
+          })),
+          finalResult: allowed,
+          source: source,
+          message: 'Policy evaluation completed',
+        }),
+        'PoliciesService'
+      );
 
       span.setAttributes({
         'policy.evaluation.allowed': allowed.toString(),
@@ -322,7 +336,9 @@ export class PoliciesService {
     const tracer = trace.getTracer('policy-service');
     const span = tracer.startSpan('policy.condition.evaluate', {
       attributes: {
-        'condition.type': condition?.type || (condition?.field ? 'simple' : condition?.and ? 'and' : condition?.or ? 'or' : 'unknown'),
+        'condition.type':
+          condition?.type ||
+          (condition?.field ? 'simple' : condition?.and ? 'and' : condition?.or ? 'or' : 'unknown'),
       },
     });
 
