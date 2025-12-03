@@ -8,6 +8,11 @@ import { isPreviewMode } from '@common/helpers/preview-mode.helper';
 
 @Controller('permissions')
 @ApiTags('Permissions')
+@ApiHeader({
+  name: 'X-Tenant-ID',
+  description: 'Tenant ID for which permissions are being managed',
+  required: true,
+})
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
@@ -21,10 +26,10 @@ export class PermissionsController {
   })
   @ApiOperation({
     summary: 'Create a new permission',
-    description: 'Add X-Preview-Mode: true header to validate without creating'
+    description: 'Add X-Preview-Mode: true header to validate without creating',
   })
-  @ApiResponse({ status: 201, description: 'Permission created successfully', type: PermissionDto})
-  @ApiResponse({ status: 409, description: 'Permission code already exists'})
+  @ApiResponse({ status: 201, description: 'Permission created successfully', type: PermissionDto })
+  @ApiResponse({ status: 409, description: 'Permission code already exists' })
   async create(
     @Body() createPermissionDto: CreatePermissionDto,
     @Request() req: any
@@ -34,18 +39,14 @@ export class PermissionsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get all permissions'})
+  @ApiOperation({ summary: 'Get all permissions' })
   @ApiQuery({ name: 'skip', required: false, type: Number })
   @ApiQuery({ name: 'take', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'List of Permissions'})
+  @ApiResponse({ status: 200, description: 'List of Permissions' })
   async findAll(
     @Query('skip') skip?: number,
-    @Query('take') take?: number,
+    @Query('take') take?: number
   ): Promise<PermissionDto[]> {
-    return this.permissionsService.findAll(
-      skip,
-      take
-    );
+    return this.permissionsService.findAll(skip, take);
   }
-
 }

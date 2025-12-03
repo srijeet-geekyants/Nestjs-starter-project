@@ -1,12 +1,18 @@
-import { Controller, HttpStatus, Post, HttpCode, Body } from '@nestjs/common';
+import { Controller, HttpStatus, Post, HttpCode, Body, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { TenantId } from '../../common/decorators/tenant-id.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
+@ApiHeader({
+  name: 'X-Tenant-ID',
+  description: 'Tenant ID for which the user is attempting to authenticate',
+  required: true,
+})
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -44,7 +50,11 @@ export class AuthController {
     status: 401,
     description: 'Invalid credentials',
   })
-  async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
-    return this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto, @TenantId() tenantId: string): Promise<AuthResponseDto> {
+    if (!tenantId) {
+      throw new BadRequestException('Tenant ID is required');
+    }
+
+    return this.authService.login(loginDto, tenantId);
   }
 }

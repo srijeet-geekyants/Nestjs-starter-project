@@ -86,7 +86,7 @@ export class AuthService {
     return tenant;
   }
 
-  async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+  async login(loginDto: LoginDto, tenantId: string): Promise<AuthResponseDto> {
     const user = await this.userRepository.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -103,12 +103,17 @@ export class AuthService {
       throw new UnauthorizedException('Wrong Password');
     }
 
+    const userWithTenant = await this.userRepository.findByIdAndTenantId(user.id, tenantId);
+    if (!userWithTenant) {
+      throw new UnauthorizedException('Invalid tenant for this user');
+    }
+
     const userDto: UserDto = <UserDto>{
-      id: user.id,
-      tenantId: user.tenant_id, // X-Tenant-id
-      email: user.email,
-      role: user.role,
-      createdAt: user.created_at || new Date(),
+      id: userWithTenant.id,
+      tenantId: userWithTenant.tenant_id, // X-Tenant-id
+      email: userWithTenant.email,
+      role: userWithTenant.role,
+      createdAt: userWithTenant.created_at || new Date(),
     };
     const accessToken = this.buildAccessToken(userDto);
     const response: AuthResponseDto = {
